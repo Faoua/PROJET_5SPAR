@@ -1,0 +1,14 @@
+.env 
+ 
+
+# Ignorer les dossiers et fichiers Python
+__pycache__/
+*.pyc
+
+# Ignorer les fichiers système
+.DS_Store
+Thumbs.db
+
+# Ignorer les fichiers temporaires ou logs
+*.log
+*.tmp
