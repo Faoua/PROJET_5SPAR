@@ -1,49 +1,35 @@
-from mastodon import Mastodon
+from mastodon import Mastodon, StreamListener
 from kafka import KafkaProducer
-from bs4 import BeautifulSoup
-from dotenv import load_dotenv
-import os, json, time
+import json
 
-# Charger les variables d'environnement (.env)
-load_dotenv()
+# --- CONFIG ---
+MASTODON_ACCESS_TOKEN = "z9eGV1zIRraCMNVe_Pi-YXeVmWEa9vU_aok_KNgPfPo"
+MASTODON_API_BASE_URL = "https://mastodon.social"
+KAFKA_TOPIC = "mastodon_stream"
+KAFKA_SERVER = "localhost:29092"
 
-# Connexion à l'API Mastodon
-mastodon = Mastodon(
-    access_token=os.getenv("MASTO_ACCESS_TOKEN"),
-    api_base_url=os.getenv("MASTO_BASE_URL")
-)
-
-# Connexion au producteur Kafka
+# --- INITIALISATION ---
 producer = KafkaProducer(
-    bootstrap_servers='localhost:9092',
+    bootstrap_servers=[KAFKA_SERVER],
     value_serializer=lambda v: json.dumps(v).encode('utf-8')
 )
 
-topic_name = "mastodon_stream"
+mastodon = Mastodon(
+    access_token=MASTODON_ACCESS_TOKEN,
+    api_base_url=MASTODON_API_BASE_URL
+)
 
-print(" Démarrage du producteur Mastodon → Kafka...")
-while True:
-    # Récupérer les toots
-    toots = mastodon.timeline_hashtag("DataScience", limit=5)
-    
-    for toot in toots:
-        # Nettoyer le contenu HTML
-        text = BeautifulSoup(toot["content"], "html.parser").get_text()
-        
-        # Construire le message JSON
-        data = {
-            "id": toot["id"],
-            "timestamp": str(toot["created_at"]),
-            "username": toot["account"]["username"],
-            "content": text,
-            "hashtags": [tag["name"] for tag in toot["tags"]],
-            "favourites": toot["favourites_count"],
-            "reblogs": toot["reblogs_count"]
+class MyListener(StreamListener):
+    def on_update(self, status):
+        toot = {
+            "username": status["account"]["username"],  # Changé de "user" à "username"
+            "content": status["content"],
+            "lang": status.get("language", "unknown"),  # AJOUTÉ
+            "created_at": str(status["created_at"]),
+            "hashtags": [t["name"] for t in status["tags"]]
         }
-        
-        # Envoyer dans Kafka
-        producer.send(topic_name, value=data)
-        print(f" Envoyé : {data['username']} → {data['content'][:80]}...")
+        print(f"✅ Toot reçu : {toot['username']} - {toot['hashtags']} - lang: {toot['lang']}")
+        producer.send(KAFKA_TOPIC, toot)
 
-    # Attendre 10 secondes avant le prochain lot
-    time.sleep(10)
+listener = MyListener()
+mastodon.stream_public(listener)
