@@ -1,14 +1,49 @@
-.env 
- 
-
-# Ignorer les dossiers et fichiers Python
+# Python
 __pycache__/
+*.py[cod]
+*.so
+*.egg
+*.egg-info/
+venv/
+env/
 *.pyc
 
-# Ignorer les fichiers système
+# Spark
+spark/checkpoints/*
+!spark/checkpoints/.gitkeep
+*.log
+metastore_db/
+derby.log
+
+# Docker
+.env
+
+# Data
+data/*.csv
+*.csv
+
+# Models (trop gros pour GitHub)
+models/sentiment_model/*
+!models/.gitkeep
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Jupyter
+.ipynb_checkpoints/
+notebooks/.ipynb_checkpoints/
+
+# OS
 .DS_Store
 Thumbs.db
 
-# Ignorer les fichiers temporaires ou logs
-*.log
-*.tmp
+# Secrets - IMPORTANT !
+mastodon_producer.py
+*token*
+*secret*
+*password*
+
+# PostgreSQL data
+pgdata/

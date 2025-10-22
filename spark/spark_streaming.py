@@ -75,9 +75,9 @@ def write_to_postgres(df, epoch_id, table_name):
             .option("driver", "org.postgresql.Driver") \
             .mode("append") \
             .save()
-        print(f"✅ Batch {epoch_id} écrit dans {table_name}")
+        print(f" Batch {epoch_id} écrit dans {table_name}")
     except Exception as e:
-        print(f"⚠️ Erreur écriture Postgres ({table_name}) : {e}")
+        print(f" Erreur écriture Postgres ({table_name}) : {e}")
 
 
 def write_to_postgres_window(df, epoch_id):
@@ -100,6 +100,6 @@ query2 = df_avg_len.writeStream \
     .start()
 
 
-print("🚀 Streaming démarré...")
+print(" Streaming démarré...")
 query1.awaitTermination()
 query2.awaitTermination()

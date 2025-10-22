@@ -2,10 +2,10 @@ FROM apache/spark:3.5.1-python3
 
 USER root
 
-# 📦 Installer PySpark
-RUN pip install --no-cache-dir pyspark==3.5.1
+#  Installer uniquement NumPy (PySpark est déjà installé)
+RUN pip install --no-cache-dir numpy
 
-# 📦 Téléchargement de tous les JAR nécessaires (Kafka + PostgreSQL)
+#  Téléchargement de tous les JAR nécessaires (Kafka + PostgreSQL)
 RUN mkdir -p /opt/spark/jars && \
     curl -L -o /opt/spark/jars/spark-sql-kafka-0-10_2.12-3.5.0.jar https://repo1.maven.org/maven2/org/apache/spark/spark-sql-kafka-0-10_2.12/3.5.0/spark-sql-kafka-0-10_2.12-3.5.0.jar && \
     curl -L -o /opt/spark/jars/spark-streaming-kafka-0-10_2.12-3.5.0.jar https://repo1.maven.org/maven2/org/apache/spark/spark-streaming-kafka-0-10_2.12/3.5.0/spark-streaming-kafka-0-10_2.12-3.5.0.jar && \
@@ -16,6 +16,6 @@ RUN mkdir -p /opt/spark/jars && \
 
 # Ajouter spark au PATH
 ENV PATH="/opt/spark/bin:${PATH}"
-ENV PYTHONPATH="/opt/spark/python:/opt/spark/python/lib/py4j-0.10.9.7-src.zip:${PYTHONPATH}"
+ENV PYTHONPATH="/opt/spark/python:/opt/spark/python/lib/py4j-0.10.9.7-src.zip:$PYTHONPATH"
 
 USER spark

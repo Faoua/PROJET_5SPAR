@@ -1,6 +1,6 @@
 version: '3.8'
 services:
-  # ---------- 🐘 Zookeeper ----------
+  # ----------  Zookeeper ----------
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.0
     container_name: zookeeper
@@ -10,7 +10,7 @@ services:
     ports:
       - "2181:2181"
 
-  # ---------- 💬 Kafka ----------
+  # ----------  Kafka ----------
   kafka:
     image: confluentinc/cp-kafka:7.5.0
     container_name: kafka
@@ -28,7 +28,7 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
 
-  # ---------- 🎨 Kafka UI ----------
+  # ----------  Kafka UI ----------
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
     container_name: kafka-ui
@@ -41,7 +41,7 @@ services:
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
       KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
 
-  # ---------- 🐘 PostgreSQL ----------
+  # ----------  PostgreSQL ----------
   postgres:
     image: postgres:15
     container_name: postgres
@@ -60,7 +60,7 @@ services:
       timeout: 5s
       retries: 5
 
-  # ---------- ⚡ Spark Master ----------
+  # ---------- Spark Master ----------
   spark-master:
     build:
       context: .
@@ -73,10 +73,12 @@ services:
       - "8080:8080"  # SPARK UI déjà exposé ici
     volumes:
       - ./spark:/opt/spark-apps
+      - ./data:/opt/spark-apps/data     # AJOUTER
+      - ./models:/opt/spark-apps/models  # AJOUTER    
     command: >
       bash -c "/opt/spark/sbin/start-master.sh && tail -f /opt/spark/logs/spark--org.apache.spark.deploy.master*.out"
 
-  # ---------- ⚙️ Spark Worker ----------
+  # ----------  Spark Worker ----------
   spark-worker:
     build:
       context: .
@@ -93,10 +95,12 @@ services:
       - "8081:8081"  # Worker UI
     volumes:
       - ./spark:/opt/spark-apps
+      - ./data:/opt/spark-apps/data      # Déjà existant  
+      - ./models:/opt/spark-apps/models  # Déjà existant
     command: >
       bash -c "/opt/spark/sbin/start-worker.sh spark://spark-master:7077 && tail -f /opt/spark/logs/spark--org.apache.spark.deploy.worker*.out"
 
-  # ---------- 📓 Jupyter Notebook ----------
+  # ----------  Jupyter Notebook ----------
   jupyter:
     image: jupyter/pyspark-notebook:latest
     container_name: jupyter

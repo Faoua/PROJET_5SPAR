@@ -28,7 +28,7 @@ class MyListener(StreamListener):
             "created_at": str(status["created_at"]),
             "hashtags": [t["name"] for t in status["tags"]]
         }
-        print(f"✅ Toot reçu : {toot['username']} - {toot['hashtags']} - lang: {toot['lang']}")
+        print(f" Toot reçu : {toot['username']} - {toot['hashtags']} - lang: {toot['lang']}")
         producer.send(KAFKA_TOPIC, toot)
 
 listener = MyListener()
